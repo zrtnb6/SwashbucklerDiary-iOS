@@ -3,6 +3,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Query private var diaries: [Diary]
+    @State private var webDAVStore = WebDAVConfigStore()
 
     var body: some View {
         NavigationStack {
@@ -15,10 +16,16 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
-                        PlaceholderView(title: "WebDAV 备份",
-                                        message: "同步模块正在开发中。")
+                        WebDAVSettingsView()
                     } label: {
-                        Label("WebDAV 备份", systemImage: "externaldrive.connected.to.line.below")
+                        HStack {
+                            Label("WebDAV 备份",
+                                  systemImage: "externaldrive.connected.to.line.below")
+                            Spacer(minLength: 8)
+                            Text(webDAVStore.config.isConfigured ? "已配置" : "未配置")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 } header: {
                     Text("同步")
