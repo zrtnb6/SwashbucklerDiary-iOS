@@ -72,6 +72,16 @@ struct GlassMenuButton<Content: View>: View {
     var isActive: Bool = false
     @ViewBuilder var content: Content
 
+    /// 自定义 init：去掉 `systemImage:` 标签，让调用点能写成
+    /// `GlassMenuButton("line.3.horizontal.decrease") { ... }`。
+    init(_ systemImage: String,
+         isActive: Bool = false,
+         @ViewBuilder content: @escaping () -> Content) {
+        self.systemImage = systemImage
+        self.isActive = isActive
+        self.content = content()
+    }
+
     var body: some View {
         Menu {
             content
