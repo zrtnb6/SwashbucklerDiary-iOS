@@ -1,0 +1,14 @@
+# Xcode
+build/
+DerivedData/
+*.xcarchive
+*.ipa
+*.dSYM.zip
+
+# XcodeGen 生成的工程不入库，CI 现场 generate
+*.xcodeproj/
+
+# 用户态
+xcuserdata/
+*.xcuserstate
+.DS_Store
