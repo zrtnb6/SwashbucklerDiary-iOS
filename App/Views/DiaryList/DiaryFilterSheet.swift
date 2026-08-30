@@ -18,25 +18,29 @@ struct DiaryFilterSheet: View {
                     Toggle("只看置顶", isOn: $criteria.pinnedOnly)
                 }
 
-                Section("时间") {
+                Section {
                     Picker("范围", selection: $criteria.timeRange) {
                         ForEach(DiaryTimeRange.allCases) { range in
                             Label(range.rawValue, systemImage: range.systemImage).tag(range)
                         }
                     }
                     .pickerStyle(.inline)
+                } header: {
+                    Text("时间")
                 }
 
-                Section("文件") {
+                Section {
                     Picker("类型", selection: $criteria.resourceFilter) {
                         ForEach(DiaryResourceFilter.allCases) { filter in
                             Label(filter.rawValue, systemImage: filter.systemImage).tag(filter)
                         }
                     }
                     .pickerStyle(.inline)
+                } header: {
+                    Text("文件")
                 }
 
-                Section("标签") {
+                Section {
                     if allTags.isEmpty {
                         Text("还没有标签")
                             .foregroundStyle(.secondary)
@@ -53,6 +57,8 @@ struct DiaryFilterSheet: View {
                             }
                         }
                     }
+                } header: {
+                    Text("标签")
                 } footer: {
                     Text("选中多个标签时，命中任意一个即可。")
                 }

@@ -131,7 +131,7 @@ struct DiaryListContent: View {
                 }
                 if criteria.isActive {
                     Button(role: .destructive) {
-                        criteria.wrappedValue = DiaryCriteria()
+                        criteria = DiaryCriteria()
                     } label: {
                         Label("清空筛选", systemImage: "xmark.circle")
                     }
@@ -182,7 +182,7 @@ struct DiaryListContent: View {
         let calendar = Calendar.current
         let filtered = diaries.filter { diary in
             diary.isTemplate == templatesOnly
-                && criteria.wrappedValue.matches(diary, calendar: calendar, now: now)
+                && criteria.matches(diary, calendar: calendar, now: now)
         }
         return filtered.sorted(by: settings.data.diarySort)
     }
