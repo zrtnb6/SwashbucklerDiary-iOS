@@ -1,5 +1,54 @@
 import SwiftUI
 
+/// iOS 26 以下的系统没有 Liquid Glass，这里统一给一套「够体面」的降级外观。
+///
+/// 部署目标压到 18.0 是为了让包在低版本设备上也能装上；玻璃效果只在 iOS 26+
+/// 出现。所有 iOS 26 专属 API 都必须走这个兜底，否则低版本设备会直接装不上。
+extension View {
+    /// 滚到边缘时导航栏玻璃渐隐，仅 iOS 26+。
+    @ViewBuilder
+    func softScrollEdge() -> some View {
+        if #available(iOS 26.0, *) {
+            self.scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            self
+        }
+    }
+
+    /// 向下滚动时 tab bar 自动收起，仅 iOS 26+。
+    @ViewBuilder
+    func minimizeTabBarOnScroll() -> some View {
+        if #available(iOS 26.0, *) {
+            self.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            self
+        }
+    }
+
+    /// 胶囊玻璃底，仅 iOS 26+；低版本退回半透明实心胶囊。
+    @ViewBuilder
+    func capsuleGlass() -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(.regular, in: Capsule())
+        } else {
+            self.background(Capsule().fill(Color.primary.opacity(0.06)))
+        }
+    }
+
+    /// 圆角矩形玻璃面板（设置页概览卡片那种），仅 iOS 26+。
+    @ViewBuilder
+    func roundedGlass(cornerRadius: CGFloat) -> some View {
+        if #available(iOS 26.0, *) {
+            self.glassEffect(.regular, in: .rect(cornerRadius: cornerRadius))
+        } else {
+            self.background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(Color(.secondarySystemGroupedBackground))
+            )
+        }
+    }
+}
+
 /// iOS 26 Liquid Glass 的浮动控件层。
 ///
 /// 设计原则（Apple HIG）：Liquid Glass 是给**悬浮在内容之上**的控件用的材质
@@ -13,15 +62,30 @@ struct GlassFloatingBar<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
-        GlassEffectContainer(spacing: spacing) {
-            HStack(spacing: spacing) {
-                content
+        if #available(iOS 26.0, *) {
+            GlassEffectContainer(spacing: spacing) {
+                bar
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 4)
+        } else {
+            bar
+                .background(Capsule().fill(.ultraThinMaterial))
+                .overlay {
+                    Capsule()
+                        .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 4)
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 4)
+    }
+
+    private var bar: some View {
+        HStack(spacing: spacing) {
+            content
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
     }
 }
 
@@ -37,15 +101,24 @@ struct GlassIconButton: View {
         self.action = action
     }
 
+    private var label: some View {
+        Image(systemName: systemImage)
+            .font(.system(size: 16, weight: .semibold))
+            .frame(width: 42, height: 42)
+            .contentShape(Circle())
+    }
+
     var body: some View {
-        Button(action: action) {
-            Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .frame(width: 42, height: 42)
-                .contentShape(Circle())
+        if #available(iOS 26.0, *) {
+            Button(action: action) { label }
+                .buttonStyle(.glass)
+                .tint(tint)
+        } else {
+            Button(action: action) { label }
+                .buttonStyle(.plain)
+                .background(Circle().fill(Color.primary.opacity(0.07)))
+                .tint(tint)
         }
-        .buttonStyle(.glass)
-        .tint(tint)
     }
 }
 
@@ -61,14 +134,22 @@ struct GlassProminentButton: View {
         self.action = action
     }
 
+    private var label: some View {
+        Label(title, systemImage: systemImage)
+            .font(.subheadline.weight(.semibold))
+            .padding(.horizontal, 16)
+            .frame(height: 42)
+    }
+
     var body: some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 16)
-                .frame(height: 42)
+        if #available(iOS 26.0, *) {
+            Button(action: action) { label }
+                .buttonStyle(.glassProminent)
+        } else {
+            Button(action: action) { label }
+                .buttonStyle(.borderedProminent)
+                .clipShape(Capsule())
         }
-        .buttonStyle(.glassProminent)
     }
 }
 
@@ -88,16 +169,24 @@ struct GlassMenuButton<Content: View>: View {
         self.content = content()
     }
 
+    private var label: some View {
+        Image(systemName: systemImage)
+            .font(.system(size: 16, weight: .semibold))
+            .frame(width: 42, height: 42)
+            .contentShape(Circle())
+    }
+
     var body: some View {
-        Menu {
-            content
-        } label: {
-            Image(systemName: systemImage)
-                .font(.system(size: 16, weight: .semibold))
-                .frame(width: 42, height: 42)
+        if #available(iOS 26.0, *) {
+            Menu { content } label: { label }
+                .buttonStyle(.glass)
+                .tint(isActive ? Color.accentColor : .primary)
+        } else {
+            Menu { content } label: { label }
+                .buttonStyle(.plain)
+                .background(Circle().fill(Color.primary.opacity(0.07)))
+                .tint(isActive ? Color.accentColor : .primary)
         }
-        .buttonStyle(.glass)
-        .tint(isActive ? Color.accentColor : .primary)
     }
 }
 
@@ -118,6 +207,10 @@ struct GlassChip: View {
     var systemImage: String?
 
     var body: some View {
+        base.capsuleGlass()
+    }
+
+    private var base: some View {
         HStack(spacing: 4) {
             if let systemImage {
                 Image(systemName: systemImage)
@@ -128,6 +221,5 @@ struct GlassChip: View {
         }
         .padding(.horizontal, 9)
         .padding(.vertical, 5)
-        .glassEffect(.regular, in: Capsule())
     }
 }

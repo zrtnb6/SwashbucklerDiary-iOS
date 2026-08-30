@@ -3,7 +3,10 @@ name: SwashbucklerDiary
 options:
   bundleIdPrefix: com.zrtnb
   deploymentTarget:
-    iOS: "26.0"
+    # 部署目标刻意压到 18.0：Liquid Glass 相关 API 全部用 if #available(iOS 26.0, *)
+    # 包了一层，所以 iOS 18/26 都能装，玻璃只在 26+ 上出现。
+    # 写死 26.0 会导致低于 26 的设备「压根装不上」，坑过一次。
+    iOS: "18.0"
   groupSortPosition: top
   createIntermediateGroups: true
 
@@ -13,8 +16,8 @@ settings:
     SWIFT_VERSION: "6.0"
     SWIFT_EMIT_LOC_STRINGS: YES
     ENABLE_PREVIEWS: YES
-    TARGETED_DEVICE_FAMILY: "1"
-    IPHONEOS_DEPLOYMENT_TARGET: "26.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    IPHONEOS_DEPLOYMENT_TARGET: "18.0"
     ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS: YES
   configs:
     debug:
@@ -32,12 +35,20 @@ targets:
         excludes:
           - "Resources/Info.plist"
     info:
+      # 注意：XcodeGen 会在 generate 时用下面的 properties 覆写这个文件，
+      # 手写在 App/Resources/Info.plist 里的键不会生效（踩过）。
       path: App/Resources/Info.plist
       properties:
+        CFBundleDisplayName: "侠客日记"
+        LSRequiresIPhoneOS: true
         UILaunchScreen:
           UIColorName: ""
         UIRequiredDeviceCapabilities:
           - arm64
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
     settings:
       base:
         PRODUCT_NAME: SwashbucklerDiary

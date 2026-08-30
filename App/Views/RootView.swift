@@ -19,6 +19,6 @@ struct RootView: View {
         }
         // iOS 26：向下滚动时 tab bar 自动收起成一小条，上滑再展开。
         // 把纵向空间还给内容，是这个版本最直观的体验变化之一。
-        .tabBarMinimizeBehavior(.onScrollDown)
+        .minimizeTabBarOnScroll()
     }
 }

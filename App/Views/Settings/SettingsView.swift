@@ -63,7 +63,7 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background(Color(.systemGroupedBackground))
             .navigationTitle("设置")
-            .scrollEdgeEffectStyle(.soft, for: .top)
+            .softScrollEdge()
         }
     }
 
@@ -76,7 +76,7 @@ struct SettingsView: View {
         }
         .padding(.vertical, 14)
         .frame(maxWidth: .infinity)
-        .glassEffect(.regular, in: .rect(cornerRadius: 22))
+        .roundedGlass(cornerRadius: 22)
     }
 
     private func statItem(title: String, value: Int) -> some View {

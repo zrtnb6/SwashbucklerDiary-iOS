@@ -85,6 +85,23 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent Payload SwashbucklerDiary-unsigned.ipa
           ls -lh SwashbucklerDiary-unsigned.ipa
 
+      # 装不上的时候，靠这一步直接看出包到底缺什么：架构、最低系统版本、
+      # Info.plist 关键字段、签名状态。别再靠肉眼猜。
+      - name: Validate IPA
+        run: |
+          cd build
+          APP="Payload/SwashbucklerDiary.app"
+          echo "=== zip 结构 ==="
+          unzip -l SwashbucklerDiary-unsigned.ipa | sed -n '1,40p'
+          echo "=== 架构 ==="
+          lipo -archs "$APP/SwashbucklerDiary" || file "$APP/SwashbucklerDiary"
+          echo "=== Info.plist ==="
+          plutil -p "$APP/Info.plist"
+          echo "=== 签名 ==="
+          codesign -dv "$APP" 2>&1 | head -20 || echo "(未签名，符合预期)"
+          echo "=== 体积 ==="
+          du -sh "$APP"
+
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:

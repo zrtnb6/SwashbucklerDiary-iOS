@@ -52,13 +52,21 @@ struct EditorView: View {
     // MARK: - 心情 / 天气 / 位置
 
     /// 三个胶囊放在同一个 `GlassEffectContainer` 里，会像液体一样连成一整条玻璃。
+    /// 低于 iOS 26 时容器不存在，直接平铺即可。
+    @ViewBuilder
     private var metaBar: some View {
-        GlassEffectContainer(spacing: 8) {
-            HStack(spacing: 8) {
-                metaChip("心情", text: $mood, symbol: "face.smiling")
-                metaChip("天气", text: $weather, symbol: "cloud.sun")
-                metaChip("位置", text: $locationName, symbol: "location")
-            }
+        if #available(iOS 26.0, *) {
+            GlassEffectContainer(spacing: 8) { metaChips }
+        } else {
+            metaChips
+        }
+    }
+
+    private var metaChips: some View {
+        HStack(spacing: 8) {
+            metaChip("心情", text: $mood, symbol: "face.smiling")
+            metaChip("天气", text: $weather, symbol: "cloud.sun")
+            metaChip("位置", text: $locationName, symbol: "location")
         }
     }
 
@@ -76,7 +84,7 @@ struct EditorView: View {
         }
         .padding(.horizontal, 11)
         .padding(.vertical, 7)
-        .glassEffect(.regular, in: Capsule())
+        .capsuleGlass()
     }
 
     // MARK: - 正文

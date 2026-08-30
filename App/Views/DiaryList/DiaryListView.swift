@@ -38,7 +38,7 @@ struct DiaryListView: View {
             content
                 .navigationTitle("日记")
                 .searchable(text: $searchText, prompt: "搜索标题、正文或标签")
-                .scrollEdgeEffectStyle(.soft, for: .top)
+                .softScrollEdge()
                 .safeAreaInset(edge: .bottom) { floatingBar }
                 .sheet(item: $editorTarget) { EditorView(diary: $0.diary) }
         }
