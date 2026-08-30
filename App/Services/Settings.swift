@@ -154,6 +154,10 @@ struct SettingsData: Codable {
 }
 
 /// 设置容器。视图里通过 `settings.data.xxx` 读写，改动自动落盘。
+///
+/// 整类锁在主线程：设置项全程由 UI 读写，`UserDefaults` 也不是并发安全的，
+/// 统一隔离后 Swift 6 严格并发检查就不会再抱怨 `shared` 静态属性。
+@MainActor
 @Observable
 final class AppSettings {
     static let shared = AppSettings()

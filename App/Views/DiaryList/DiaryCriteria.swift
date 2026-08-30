@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 /// 时间范围筛选。
-enum DiaryTimeRange: String, CaseIterable, Identifiable {
+enum DiaryTimeRange: String, Codable, CaseIterable, Identifiable {
     case all = "全部时间"
     case today = "今天"
     case week = "最近七天"
@@ -41,7 +41,7 @@ enum DiaryTimeRange: String, CaseIterable, Identifiable {
 }
 
 /// 资源类型筛选。原项目首页筛选面板里的「文件」维度。
-enum DiaryResourceFilter: String, CaseIterable, Identifiable {
+enum DiaryResourceFilter: String, Codable, CaseIterable, Identifiable {
     case any = "不限"
     case withMedia = "含媒体"
     case image = "含图片"
