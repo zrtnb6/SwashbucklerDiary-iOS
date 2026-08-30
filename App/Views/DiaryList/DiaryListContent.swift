@@ -95,8 +95,9 @@ struct DiaryListContent: View {
             .background(Color(.systemGroupedBackground))
     }
 
+    /// 点卡片进阅读页，要改内容走侧滑或长按菜单——和原项目一致。
     private func row(for diary: Diary) -> some View {
-        Button { editorTarget = .existing(diary) } label: {
+        NavigationLink { ReadView(diary: diary) } label: {
             DiaryCard(diary: diary)
         }
         .buttonStyle(.plain)

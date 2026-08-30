@@ -26,7 +26,7 @@ struct TagDetailView: View {
                 ScrollView {
                     LazyVStack(spacing: 12) {
                         ForEach(diaries) { diary in
-                            Button { editorTarget = .existing(diary) } label: {
+                            NavigationLink { ReadView(diary: diary) } label: {
                                 DiaryCard(diary: diary)
                             }
                             .buttonStyle(.plain)
