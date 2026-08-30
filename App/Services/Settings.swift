@@ -156,6 +156,8 @@ struct SettingsData: Codable {
 /// 设置容器。视图里通过 `settings.data.xxx` 读写，改动自动落盘。
 @Observable
 final class AppSettings {
+    static let shared = AppSettings()
+
     private static let storageKey = "SwashbucklerDiary.Settings"
 
     var data: SettingsData {

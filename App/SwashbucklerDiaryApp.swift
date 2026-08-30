@@ -16,6 +16,7 @@ struct SwashbucklerDiaryApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .environment(AppSettings.shared)
         }
         .modelContainer(container)
     }

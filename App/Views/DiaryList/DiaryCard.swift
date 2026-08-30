@@ -9,7 +9,11 @@ import SwiftUI
 struct DiaryCard: View {
     let diary: Diary
 
+    @Environment(AppSettings.self) private var settings
+
     private let cornerRadius: CGFloat = 24
+
+    private var card: SettingsData { settings.data }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -47,37 +51,69 @@ struct DiaryCard: View {
             : Color(.secondarySystemGroupedBackground)
     }
 
-    // MARK: - 顶部：日期 + 心情 / 天气
+    // MARK: - 顶部：日期 + 状态标 + 心情 / 天气
 
     private var topRow: some View {
         HStack(alignment: .center, spacing: 6) {
-            Text(diary.updateTime.diaryDayText)
+            Text(diary.updateTime.formatted(with: card.cardTimeFormat))
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.secondary)
+                .monospacedDigit()
 
             if !Calendar.current.isDateInToday(diary.updateTime) {
                 Text(diary.updateTime.diaryTimeText)
                     .font(.caption)
                     .foregroundStyle(.tertiary)
+                    .monospacedDigit()
             }
+
+            badgeRow
 
             Spacer(minLength: 4)
 
-            if !diary.mood.isEmpty {
-                GlassChip(text: diary.mood, systemImage: "face.smiling")
-            }
-            if !diary.weather.isEmpty {
-                GlassChip(text: diary.weather, systemImage: "cloud.sun")
+            if card.cardShowIcon {
+                if !diary.mood.isEmpty {
+                    GlassChip(text: diary.mood, systemImage: diary.moodSymbol)
+                }
+                if !diary.weather.isEmpty {
+                    GlassChip(text: diary.weather, systemImage: diary.weatherSymbol)
+                }
             }
         }
+    }
+
+    /// 模板 / 私密两种状态标。置顶已经有左侧色条了，不再重复占位置。
+    @ViewBuilder
+    private var badgeRow: some View {
+        if diary.isTemplate {
+            statusBadge("模板", systemImage: "doc.on.doc", tint: .indigo)
+        }
+        if diary.isPrivate {
+            statusBadge("私密", systemImage: "lock", tint: .orange)
+        }
+    }
+
+    private func statusBadge(_ text: String, systemImage: String, tint: Color) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: systemImage)
+                .font(.system(size: 9, weight: .bold))
+            Text(text)
+                .font(.caption2.weight(.semibold))
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background(tint.opacity(0.16), in: Capsule())
+        .foregroundStyle(tint)
     }
 
     // MARK: - 标题
 
     private var titleLine: some View {
-        Text(diary.displayTitle.isEmpty ? "无标题" : diary.displayTitle)
+        // `cardDefaultTitle` 关掉后，没写标题就是真没标题，不拿首行凑数。
+        let text = card.cardDefaultTitle ? diary.displayTitle : diary.title
+        return Text(text.isEmpty ? "无标题" : text)
             .font(.title3.weight(.semibold))
-            .foregroundStyle(diary.displayTitle.isEmpty ? .tertiary : .primary)
+            .foregroundStyle(text.isEmpty ? .tertiary : .primary)
             .lineLimit(2)
             .multilineTextAlignment(.leading)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -93,17 +129,21 @@ struct DiaryCard: View {
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    // MARK: - 底部：位置 / 标签 / 字数
+    // MARK: - 底部：位置 / 标签 / 资源 / 字数
 
     private var bottomRow: some View {
         HStack(spacing: 10) {
-            if !diary.locationName.isEmpty {
+            if card.cardShowLocation, !diary.locationName.isEmpty {
                 Label(diary.locationName, systemImage: "location")
                     .lineLimit(1)
             }
 
-            if !diary.tags.isEmpty {
+            if card.cardShowTags, !diary.tags.isEmpty {
                 tagRow
+            }
+
+            if !diary.resources.isEmpty {
+                resourceRow
             }
 
             Spacer(minLength: 4)
@@ -129,6 +169,21 @@ struct DiaryCard: View {
             }
         }
     }
+
+    /// 卡片上只标资源「类型」，不加载缩略图——列表滚动时解码图片会掉帧。
+    private var resourceRow: some View {
+        HStack(spacing: 6) {
+            ForEach(diary.resourceSymbols, id: \.self) { symbol in
+                Image(systemName: symbol)
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            if diary.resources.count > diary.resourceSymbols.count {
+                Text("×\(diary.resources.count)")
+                    .monospacedDigit()
+                    .foregroundStyle(.tertiary)
+            }
+        }
+    }
 }
 
 #Preview {
@@ -141,4 +196,5 @@ struct DiaryCard: View {
     return DiaryCard(diary: diary)
         .padding()
         .background(Color(.systemGroupedBackground))
+        .environment(AppSettings.shared)
 }

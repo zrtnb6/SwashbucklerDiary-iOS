@@ -1,0 +1,25 @@
+import Foundation
+
+/// 编辑器的打开目标：新建，或者编辑某一篇。
+///
+/// 列表、标签详情、模板页都要唤起同一个编辑器，抽出来共用。
+enum EditorTarget: Identifiable {
+    case new
+    case existing(Diary)
+
+    var id: String {
+        switch self {
+        case .new:
+            return "new"
+        case .existing(let diary):
+            return diary.id.uuidString
+        }
+    }
+
+    var diary: Diary? {
+        switch self {
+        case .new: return nil
+        case .existing(let diary): return diary
+        }
+    }
+}
