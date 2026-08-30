@@ -5,11 +5,11 @@ import SwiftUI
 ///
 /// 排序直接读 `AppSettings.diarySort`，改完自动落盘，下次打开还在。
 struct DiaryListContent: View {
-    /// 只显示模板的场合复用本视图（首页第三个 tab）。
-    var templatesOnly: Bool = false
-
     /// 筛选条件由 `HomeView` 持有：搜索框挂在导航栈上，三个分页共用一个搜索词。
     @Binding var criteria: DiaryCriteria
+
+    /// 只显示模板的场合复用本视图（首页第三个 tab）。
+    var templatesOnly: Bool = false
 
     @Environment(\.modelContext) private var modelContext
     @Environment(AppSettings.self) private var settings
