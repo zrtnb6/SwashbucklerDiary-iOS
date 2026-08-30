@@ -42,6 +42,8 @@ struct TagDetailView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle(tag.name)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $editorTarget) { EditorView(diary: $0.diary) }
+        .sheet(item: $editorTarget) {
+            EditorView(diary: $0.diary, asTemplate: $0.asTemplate)
+        }
     }
 }

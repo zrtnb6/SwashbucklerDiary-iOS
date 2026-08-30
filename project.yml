@@ -49,6 +49,13 @@ targets:
           - UIInterfaceOrientationPortrait
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
+        # 资源编辑要用到的权限。PHPicker 免权限，但相机 / 麦克风 / 定位必须声明，
+        # 否则一调用就闪退。
+        NSPhotoLibraryUsageDescription: "用于把照片插入到日记里"
+        NSPhotoLibraryAddUsageDescription: "用于保存日记里的图片"
+        NSCameraUsageDescription: "用于拍照并插入到日记里"
+        NSMicrophoneUsageDescription: "用于录音并插入到日记里"
+        NSLocationWhenInUseUsageDescription: "用于在日记里记录位置"
     settings:
       base:
         PRODUCT_NAME: SwashbucklerDiary

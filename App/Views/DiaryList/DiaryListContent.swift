@@ -23,7 +23,9 @@ struct DiaryListContent: View {
     var body: some View {
         content
             .safeAreaInset(edge: .bottom) { floatingBar }
-            .sheet(item: $editorTarget) { EditorView(diary: $0.diary) }
+            .sheet(item: $editorTarget) {
+                EditorView(diary: $0.diary, asTemplate: $0.asTemplate)
+            }
             .sheet(isPresented: $showFilterSheet) {
                 DiaryFilterSheet(criteria: $criteria)
             }
@@ -152,7 +154,7 @@ struct DiaryListContent: View {
             GlassBarDivider()
 
             GlassProminentButton(primaryButtonTitle, systemImage: "square.and.pencil") {
-                editorTarget = .new
+                editorTarget = .new(asTemplate: templatesOnly)
             }
         }
     }
